@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1>CSRF <small class="muted">(mitigated)</small></h1>
+  <p>Logged in as <strong>{{ user }}</strong>. Current email: <code>{{ email }}</code></p>
+
+  <!-- SAFE: POST + CSRF token -->
+  <form method="post" action="/change-email-safe">
+    <input type="email" name="email" placeholder="new email" required />
+    <input type="hidden" name="csrf_token" value="{{ token }}" />
+    <button type="submit">Change email (POST + token)</button>
+  </form>
+
+  {% if error %}
+    <p class="warning">{{ error }}</p>
+  {% endif %}
+
+  <div class="hint">
+    <p><strong>Why this is safe:</strong> the browser won't send your CSRF token to the attacker's page,
+    so a cross-site form POST can't forge a valid request. Also try logging in with
+    <a href="/login?samesite=Strict">SameSite=Strict</a> and see how even the vulnerable GET attack fails
+    because the cookie isn't sent cross-site.</p>
+  </div>
+
+  <p class="path">Back to vulnerable version: <a href="/">/</a></p>
+{% endblock %}

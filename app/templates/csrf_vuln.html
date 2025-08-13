@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1>CSRF <small class="muted">(vulnerable)</small></h1>
+
+  {% if not user %}
+    <p>You're not logged in. Click <a href="/login">Login (Lax)</a> to create a demo session cookie.</p>
+  {% else %}
+    <p>Logged in as <strong>{{ user }}</strong>. Current email: <code>{{ email }}</code></p>
+
+    <!-- VULNERABLE: state change via GET, no CSRF token -->
+    <form method="get" action="/change-email">
+      <input type="email" name="email" placeholder="new email" required />
+      <button type="submit">Change email (GET)</button>
+    </form>
+
+    <div class="hint">
+      <p><strong>How to exploit (demo):</strong></p>
+      <ol>
+        <li>Ensure you're logged in here (SameSite=Lax).</li>
+        <li>Open a local file (different origin) with this form:
+<pre>
+&lt;form action="http://127.0.0.1:5001/change-email" method="GET"&gt;
+  &lt;input type="hidden" name="email" value="hacked@evil.test"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.forms[0].submit()&lt;/script&gt;
+</pre>
+        </li>
+        <li>Because this is a top-level <em>GET</em> navigation, the Lax cookie is sent and the email changes.</li>
+      </ol>
+    </div>
+
+    <p class="path">See the protected version at <a href="/safe">/safe</a>.</p>
+  {% endif %}
+{% endblock %}

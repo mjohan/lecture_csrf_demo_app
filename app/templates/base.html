@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ title or "CSRF demo" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <nav class="topseg">
+          <a href="{{ url_for('csrf.index') }}" class="{{ 'active' if request.path == '/' else '' }}">Vulnerable</a>
+          <a href="{{ url_for('csrf.safe_form') }}" class="{{ 'active' if request.path == '/safe' else '' }}">Safe</a>
+          {% if request.cookies.get('csrf_demo_session') %}
+            <a href="{{ url_for('csrf.logout') }}">Logout</a>
+          {% else %}
+            <a href="{{ url_for('csrf.login') }}">Login (Lax)</a>
+            <a href="{{ url_for('csrf.login', samesite='Strict') }}">Login (Strict)</a>
+          {% endif %}
+        </nav>
+        {% block body %}{% endblock %}
+      </div>
+    </div>
+  </body>
+</html>
